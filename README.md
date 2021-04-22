@@ -1,8 +1,8 @@
 # pylatex-tools
 
-This library contains a few useful tools to work latex.
+This library contains a few useful Python tools to work with latex.
 
-I wrote these functions because I am more versatile with Python and I am using overleaf - which does not have always have the flexibility one might need.
+I wrote these functions because I am more versatile with Python and I am using overleaf - which does not always have the flexibility one might need.
 
 **functions**
 
