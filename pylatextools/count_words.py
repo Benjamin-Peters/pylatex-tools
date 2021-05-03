@@ -18,13 +18,13 @@ def load_file(filename: str):
 
 
 def has_struct_el(text: str):    
-    """checks for the presence of a sectioning command
+    """checks for the presence of a sectioning command in a string
 
     Args:
-        text (str): [description]
+        text (str): string
 
     Returns:
-        [type]: [description]
+        tuple: (sectioning_command, position in str) if present, otherwise (None,None)
     """
     for i, h in enumerate(sectioning_commands):
         p = text.find('\\' + h)
@@ -32,6 +32,31 @@ def has_struct_el(text: str):
             return h, p    
     return None, None
     
+
+def strip_tc_ignore(lines: list):
+    """removes lines that are between lines "%TC:ignore" and %TC:endignore"
+    
+        this is used in overleafs word count to ignore text 
+        https://de.overleaf.com/learn/how-to/Is_there_a_way_to_run_a_word_count_that_doesn't_include_LaTeX_commands%3F
+
+    Returns:
+        list: list of lines with ignored lines removed
+    """
+    new_lines = []
+    ignore_next_line = False
+    for l in lines:
+        p = l.find('%TC:ignore')
+        if p >=0:
+            ignore_next_line = True
+
+        if not ignore_next_line:
+            new_lines.append(l)
+
+        p = l.find('%TC:endignore')
+        if p >=0:
+            ignore_next_line = False                  
+    
+    return new_lines
 
 def count_words(lines: list):
     """counts word in a tex doc - structure by the sectioning commands
@@ -117,12 +142,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description= "creates a word count for each document level and subpart for a tex document\nremoves tex commands, image captions, header, citations, etc. - only counts the text",
                 formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('tex_filename', type=str, help='path to the latex file')   
+    parser.add_argument('-i', '--ignore_via_tc_ignore', type=bool, default=False, help='wethere to ignore lines between "%TC:ignore" and "%TC:endignore".')    
     parser.add_argument('-w', '--write_csv_output', type=bool, default=False, help='whether to write the word count to csv file. Default True.')
     args = parser.parse_args()
 
     filename = args.tex_filename
 
     lines = load_file(filename)
+    if args.ignore_via_tc_ignore:
+        lines = strip_tc_ignore(lines)
     lines = strip_comments_in_tex(lines)
 
     print(('\n\nword count for file %s' % args.tex_filename).upper())
