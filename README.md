@@ -15,6 +15,13 @@ python .\latex_tools\create_new_bibliography.py .\example\main.tex .\example\ref
 
 writes new file "out.bib" that only contains the cited references
 
+
+To remove unncessary fields (that often mess up the bibliography):
+```
+python .\latex_tools\create_new_bibliography.py .\example\main.tex .\example\references.bib --remove_fields file abstract day month keywords urldate language iss note isbn
+```
+
+
 - **detex**: creates a text-only version of a tex document (uses a lot of code from [here](http://www.gilles-bertrand.com/2012/11/a-simple-detex-function-in-python.html))
 
 example usage:
