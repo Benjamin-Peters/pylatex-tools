@@ -2,7 +2,7 @@
 import argparse
 import regex as re
 
-def get_tex_string_from_file(filename):
+def get_tex_string_from_file(filename: str):
     # just opens the file and returns the content as a string
     textfile = open(filename, 'r', encoding="utf8")
     filetext = textfile.read()
@@ -11,31 +11,31 @@ def get_tex_string_from_file(filename):
 
 # detex functions largely based of http://www.gilles-bertrand.com/2012/11/a-simple-detex-function-in-python.html
 
-def apply_regexps(text, listRegExp, text_mode=False):
+def apply_regexps(text: str, list_reg_exp: list, text_mode: bool = False):
     """ Applies successively many regexps to a text"""
     if text_mode:
-        print('\n'.join(listRegExp))
+        print('\n'.join(list_reg_exp))
     # apply all the rules in the ruleset
-    for element in listRegExp:
+    for element in list_reg_exp:
         left = element['left']
         right = element['right']
         r = re.compile(left)
         text = r.sub(right,text)
     return text
 
-def detex_remove_header(text):
+def detex_remove_header(text: str):
     # remove all the contents of the header, ie everything before the first occurence of "\begin{document}"
     text = re.sub(r"(?s).*?(\\begin\{document\})", "", text, 1)
     return text
 
-def detex_remove_comments(text):
+def detex_remove_comments(text: str):
     # remove comments
     regexps=[]
     regexps.append({r'left':r'([^\\])%.*', 'right':r'\1'})
     text= apply_regexps(text, regexps)    
     return text
 
-def detex_reduce(text, to_reduce = [r'\\emph', r'\\textbf', r'\\textit', r'\\text', r'\\IEEEauthorblockA', r'\\IEEEauthorblockN', r'\\author', r'\\caption',r'\\author',r'\\thanks']):
+def detex_reduce(text: str, to_reduce: list = [r'\\emph', r'\\textbf', r'\\textit', r'\\text', r'\\IEEEauthorblockA', r'\\IEEEauthorblockN', r'\\author', r'\\caption',r'\\author',r'\\thanks']):
     # replace some LaTeX commands by the contents inside the curly brackets
     regexps=[]
     for tag in to_reduce:
@@ -43,7 +43,7 @@ def detex_reduce(text, to_reduce = [r'\\emph', r'\\textbf', r'\\textit', r'\\tex
     text = apply_regexps(text, regexps)
     return text
 
-def detex_highlight(text):
+def detex_highlight(text: str):
     # replace some LaTeX commands by the contents inside curly brackets and highlight these contents
     regexps = []
     to_highlight = [r'\\part[\*]*', r'\\chapter[\*]*', r'\\section[\*]*', r'\\subsection[\*]*', r'\\subsubsection[\*]*', r'\\paragraph[\*]*'];
@@ -57,7 +57,7 @@ def detex_highlight(text):
     text = apply_regexps(text, regexps)
     return text
 
-def detex_remove(text):
+def detex_remove(text: str):
     # remove LaTeX tags
     # - remove completely some LaTeX commands that take arguments
     to_remove = [r'\\maketitle',r'\\footnote', r'\\centering', r'\\IEEEpeerreviewmaketitle', r'\\includegraphics', 
@@ -73,7 +73,7 @@ def detex_remove(text):
     text = apply_regexps(text, regexps)
     return text
 
-def detex_replace(text):
+def detex_replace(text: str):
     # - replace some LaTeX commands by the contents inside curly rackets
     # replace some symbols by their ascii equivalent
     # - common symbols
@@ -123,7 +123,7 @@ def detex_replace(text):
     # return the modified text
     return text    
 
-def detex(text):
+def detex(text: str):
     """removes all tex commands from a tex document and creates a text-only version of the document
 
     Args:
