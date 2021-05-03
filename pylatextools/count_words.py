@@ -2,20 +2,14 @@
 import re
 import argparse
 
-from detex import detex
-from texhelpers import strip_comments_in_tex
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
+from pylatextools.detex import detex
+from pylatextools.texhelpers import strip_comments_in_tex, load_file_as_list
 
 sectioning_commands = ['part', 'chapter', 'section', 'subsection', 'subsubsection', 'paragraph', 'subparagraph']
 sectioning_commands_dict = {x: i for i,x in enumerate(sectioning_commands)}
-
-def load_file(filename: str):
-    textfile = open(filename, 'r', encoding="utf8")
-    lines = []
-    for line in textfile:
-        lines.append(line)
-    textfile.close()
-    return lines
-
 
 def has_struct_el(text: str):    
     """checks for the presence of a sectioning command in a string
@@ -148,7 +142,7 @@ if __name__ == '__main__':
 
     filename = args.tex_filename
 
-    lines = load_file(filename)
+    lines = load_file_as_list(filename)
     if args.ignore_via_tc_ignore:
         lines = strip_tc_ignore(lines)
     lines = strip_comments_in_tex(lines)

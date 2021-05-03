@@ -5,6 +5,15 @@ import json
 from pybtex.database import parse_file
 from pybtex.database import BibliographyData
 
+
+def load_file_as_list(filename: str):
+    textfile = open(filename, 'r', encoding="utf8")
+    lines = []
+    for line in textfile:
+        lines.append(line)
+    textfile.close()
+    return lines
+
 def strip_comments_in_tex(tex_lines: list):
     """strips comments (%) from list of tex lines
 
@@ -34,7 +43,7 @@ def get_citations_in_tex(tex_lines: list, cite_commands:list = ['autocite', 'cit
     for line in tex_lines:
         for cc in cite_commands:
             # https://stackoverflow.com/questions/57064771/extract-cited-bibtex-keys-from-tex-file-using-regex-in-python
-            rx = re.compile(r'''(?<!\\)%.+|(\\(?:no)?''' + cc +  r'''?\{((?!\*)[^{}]+)\})''')
+            rx = re.compile(r'''(?<!\\)%.+|(\\(?:no)?''' + cc +  r'''?[\[\w|\.\-*\]]*?\{((?!\*)[^{}]+)\})''')
             ck_str = [m.group(2) for m in rx.finditer(line) if m.group(2)]
             if len(ck_str)>0:
                 for c in ck_str:

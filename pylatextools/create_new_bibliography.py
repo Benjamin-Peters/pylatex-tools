@@ -3,9 +3,12 @@ import os
 import json
 import argparse
 
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
 from pybtex.database import BibliographyData
 
-from texhelpers import strip_comments_in_tex, get_citations_in_tex, read_bib_file, remove_fields_from_bibliography
+from pylatextools.texhelpers import strip_comments_in_tex, get_citations_in_tex, read_bib_file, remove_fields_from_bibliography
 
 def load_file(filename: str):
     """ reads a text file and returns a list of the lines in the file
@@ -41,13 +44,10 @@ def create_new_bib_str(cite_keys: list, bib_dict: BibliographyData):
 
     bib_str = ''
     for ck in cite_keys:
-        try:
+        if ck in bib_dict.entries:
             bib_str += bib_dict.entries[ck].to_string('bibtex')
-        except:
-            if ck in bib_dict.entries:
-                print('could not print key "%s"' % ck)
-            else:
-                print('could not find key "%s"' % ck)
+        else:
+            print('could not find key "%s"' % ck)
     return bib_str
 
 def create_new_bibliography(bib_filename: str, tex_filename: str, 
