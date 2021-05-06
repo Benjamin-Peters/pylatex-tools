@@ -1,12 +1,12 @@
 # %%
 import os
+import sys
 import json
 import argparse
 
-import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-
 from pybtex.database import BibliographyData
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from pylatextools.texhelpers import strip_comments_in_tex, get_citations_in_tex, read_bib_file, remove_fields_from_bibliography
 
@@ -82,8 +82,8 @@ if __name__ == "__main__":
                 formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('tex_filename', type=str, default = 'main.tex', help='path to the latex file')
     parser.add_argument('bib_filename', type=str, default = 'references.bib', help='path to the bibtex library (bib file)')
-    parser.add_argument('--out_filename', type=str, default = 'out.bib', help='path to the new output filename to which the new bibtex library should be written')
-    parser.add_argument('--remove_fields', nargs='*', default=['file'], help='bibliography fields that should not be included in the newly written bib file (default: file)')
+    parser.add_argument('-o', '--out_filename', type=str, default = 'out.bib', help='path to the new output filename to which the new bibtex library should be written')
+    parser.add_argument('-r', '--remove_fields', nargs='*', default=[], help='bibliography fields that should not be included in the newly written bib file (default: file)')
 
     args = parser.parse_args()
 
@@ -91,8 +91,14 @@ if __name__ == "__main__":
     tex_filename = args.tex_filename
     output_file = args.out_filename
     remove_fields = args.remove_fields
+    
+    if len(remove_fields) == 1 and remove_fields[0] == 'most':
+        remove_fields = ['file', 'abstract', 'day', 'month', 'keywords', 'urldate', 'language', 'iss', 'note', 'isbn']
 
     print(('creating new bibfile').upper())
+    if len(remove_fields)>0:
+        print('the following fields will be removed from the new bibliography: %s' % ', '.join(remove_fields))
+        
     print('input tex document: %s' % tex_filename)
     print('input bibtex database: %s' % bib_filename)
     create_new_bibliography(bib_filename, tex_filename, output_file, remove_fields)

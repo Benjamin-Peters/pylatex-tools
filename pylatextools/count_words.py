@@ -1,12 +1,13 @@
 # %%
+import os
+import sys
 import re
 import argparse
 
-import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from pylatextools.detex import detex
-from pylatextools.texhelpers import strip_comments_in_tex, load_file_as_list
+from pylatextools.texhelpers import strip_comments_in_tex, load_file_as_list, strip_tc_ignore
 
 sectioning_commands = ['part', 'chapter', 'section', 'subsection', 'subsubsection', 'paragraph', 'subparagraph']
 sectioning_commands_dict = {x: i for i,x in enumerate(sectioning_commands)}
@@ -26,32 +27,6 @@ def has_struct_el(text: str):
             return h, p    
     return None, None
     
-
-def strip_tc_ignore(lines: list):
-    """removes lines that are between lines "%TC:ignore" and %TC:endignore"
-    
-        this is used in overleafs word count to ignore text 
-        https://de.overleaf.com/learn/how-to/Is_there_a_way_to_run_a_word_count_that_doesn't_include_LaTeX_commands%3F
-
-    Returns:
-        list: list of lines with ignored lines removed
-    """
-    new_lines = []
-    ignore_next_line = False
-    for l in lines:
-        p = l.find('%TC:ignore')
-        if p >=0:
-            ignore_next_line = True
-
-        if not ignore_next_line:
-            new_lines.append(l)
-
-        p = l.find('%TC:endignore')
-        if p >=0:
-            ignore_next_line = False                  
-    
-    return new_lines
-
 def count_words(lines: list):
     """counts word in a tex doc - structure by the sectioning commands
 

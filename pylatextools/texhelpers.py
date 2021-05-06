@@ -1,10 +1,10 @@
+# %%
 import os
 import re
 import json
 
 from pybtex.database import parse_file
 from pybtex.database import BibliographyData
-
 
 def load_file_as_list(filename: str):
     textfile = open(filename, 'r', encoding="utf8")
@@ -29,7 +29,32 @@ def strip_comments_in_tex(tex_lines: list):
             tex_lines[i] = line[:p]
     return tex_lines
 
-def get_citations_in_tex(tex_lines: list, cite_commands:list = ['autocite', 'cite']): 
+def strip_tc_ignore(lines: list):
+    """removes lines that are between lines "%TC:ignore" and %TC:endignore"
+    
+        this is used in overleafs word count to ignore text 
+        https://de.overleaf.com/learn/how-to/Is_there_a_way_to_run_a_word_count_that_doesn't_include_LaTeX_commands%3F
+
+    Returns:
+        list: list of lines with ignored lines removed
+    """
+    new_lines = []
+    ignore_next_line = False
+    for l in lines:
+        p = l.find('%TC:ignore')
+        if p >=0:
+            ignore_next_line = True
+
+        if not ignore_next_line:
+            new_lines.append(l)
+
+        p = l.find('%TC:endignore')
+        if p >=0:
+            ignore_next_line = False                  
+    
+    return new_lines
+    
+def get_citations_in_tex(tex_lines: list, cite_commands:list = ['autocite', 'cite'], unique_set=True): 
     """returns list of cite keys being used in a list of tex strings 
 
     Args:
@@ -53,7 +78,8 @@ def get_citations_in_tex(tex_lines: list, cite_commands:list = ['autocite', 'cit
     for i,k in enumerate(cite_keys):
         cite_keys[i] = cite_keys[i].strip()
     # unique set:
-    cite_keys = list(set(cite_keys))
+    if unique_set:
+        cite_keys = list(set(cite_keys))
 
     return cite_keys
 
@@ -88,3 +114,5 @@ def remove_fields_from_bibliography(bib_dict: BibliographyData, remove_fields: l
             if rm in bib_dict.entries[key].fields:
                 del bib_dict.entries[key].fields[rm]
     return bib_dict
+
+# %%
