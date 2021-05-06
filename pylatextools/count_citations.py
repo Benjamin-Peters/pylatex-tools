@@ -23,11 +23,13 @@ def count_citations(filename, citation_keys=None,
     # if citation_keys was specified as argument, filter for these
     if args.citation_keys:
         cites = [c for c in cites if any([c.find(ck)>=0 for ck in args.citation_keys])]
+    
+    if bibliography:
+        bib_dict = read_bib_file(args.bibliography)
 
     # if pattern_match_in_bibliography was specified, filter for matches
     if args.pattern_match_in_bibliography:
         #load bibliography
-        bib_dict = read_bib_file(args.bibliography)
         cites_ = []
         for c in cites:
             
@@ -60,7 +62,7 @@ def count_citations(filename, citation_keys=None,
     order = sorted(range(len(counts)), reverse = True, key=lambda k: counts[k])
     if bibliography:
         print('\n' + '-' * 50)
-        print('\ncitation_key: # occurences -- reference[optional]\n')        
+        print('\ncitation_key: # occurences -- reference\n')        
         for o in order:
             authors = [x.__str__() for x in bib_dict.entries[unique_cites[o]].persons['author']]
             year = bib_dict.entries[unique_cites[o]].fields['year']
@@ -92,7 +94,7 @@ if __name__ == '__main__':
     parser.add_argument('tex_filename', type=str, help='path to the latex file')   
     parser.add_argument('-c', '--citation_keys', nargs='*', default=[], help='if citation keys are provided - only these are searched for (also searches for partial matches of citation keys with the argument')
     parser.add_argument('-p', '--pattern_match_in_bibliography', nargs='*', default=[], help='performs pattern matching in author names and title of the references - requires argument --bibliography to be specified')
-    parser.add_argument('-b', '--bibliography', type=str, default = 'references.bib', help='path to the bibliography (bibtex file)')
+    parser.add_argument('-b', '--bibliography', type=str, default = None, help='path to the bibliography (bibtex file)')
     parser.add_argument('-i', '--ignore_via_tc_ignore', type=bool, default=False, help='wethere to ignore lines between "%TC:ignore" and "%TC:endignore".')    
     #parser.add_argument('-w', '--write_csv_output', type=bool, default=False, help='whether to write the word count to csv file. Default True.')
     args = parser.parse_args()
