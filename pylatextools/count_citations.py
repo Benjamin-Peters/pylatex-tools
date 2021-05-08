@@ -64,7 +64,11 @@ def count_citations(filename, citation_keys=None,
         print('\n' + '-' * 50)
         print('\ncitation_key: # occurences -- reference\n')        
         for o in order:
-            authors = [x.__str__() for x in bib_dict.entries[unique_cites[o]].persons['author']]
+            authors = ''
+            try:
+                authors = [x.__str__() for x in bib_dict.entries[unique_cites[o]].persons['author']]
+            except:
+                pass
             year = bib_dict.entries[unique_cites[o]].fields['year']
             title = bib_dict.entries[unique_cites[o]].fields['title']
             print(f"{unique_cites[o]}: {counts[o]} -- {' '.join(authors)} ({year}) {title}")
