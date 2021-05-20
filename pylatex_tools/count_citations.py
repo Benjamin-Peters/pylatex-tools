@@ -6,14 +6,16 @@ import re
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-from pylatextools.texhelpers import strip_comments_in_tex, get_citations_in_tex, load_file_as_list, strip_tc_ignore, read_bib_file
+from pylatex_tools.texhelpers import strip_comments_in_tex, get_citations_in_tex, load_file_as_list, strip_tc_ignore, read_bib_file
 
-
-def count_citations(filename, citation_keys=None, 
-            pattern_match_in_bibliography = None, bibliography = None):
+def count_citations(filename, 
+            citation_keys=None, 
+            pattern_match_in_bibliography = None, 
+            bibliography = None, 
+            ignore_via_tc_ignore = False):
     # load lines from tex file
     lines = load_file_as_list(filename)
-    if args.ignore_via_tc_ignore:
+    if ignore_via_tc_ignore:
         lines = strip_tc_ignore(lines)
     lines = strip_comments_in_tex(lines)
 
@@ -21,14 +23,14 @@ def count_citations(filename, citation_keys=None,
     cites = get_citations_in_tex(lines, unique_set=False)
     
     # if citation_keys was specified as argument, filter for these
-    if args.citation_keys:
-        cites = [c for c in cites if any([c.find(ck)>=0 for ck in args.citation_keys])]
+    if citation_keys:
+        cites = [c for c in cites if any([c.find(ck)>=0 for ck in citation_keys])]
     
     if bibliography:
-        bib_dict = read_bib_file(args.bibliography)
+        bib_dict = read_bib_file(bibliography)
 
     # if pattern_match_in_bibliography was specified, filter for matches
-    if args.pattern_match_in_bibliography:
+    if pattern_match_in_bibliography:
         #load bibliography
         cites_ = []
         for c in cites:
@@ -36,7 +38,7 @@ def count_citations(filename, citation_keys=None,
             title_match = False
             try:
                 title = bib_dict.entries[c].fields['title'].replace('{', '').replace('}', '')
-                title_match = any([title.find(p)>=0 for p in args.pattern_match_in_bibliography])
+                title_match = any([title.find(p)>=0 for p in pattern_match_in_bibliography])
             except:
                 pass
 
@@ -44,9 +46,8 @@ def count_citations(filename, citation_keys=None,
             try:
                 authors = [x.__str__() for x in bib_dict.entries[c].persons['author']]
                 for a in authors:
-                    for p in args.pattern_match_in_bibliography:
+                    for p in pattern_match_in_bibliography:
                         authors_match = authors_match or re.search(p, a, re.IGNORECASE)
-                    #authors_match = authors_match or any([a.find(p)>=0 for p in args.pattern_match_in_bibliography])
             except:
                 pass
 
@@ -103,5 +104,5 @@ if __name__ == '__main__':
     #parser.add_argument('-w', '--write_csv_output', type=bool, default=False, help='whether to write the word count to csv file. Default True.')
     args = parser.parse_args()
 
-    count_citations(args.tex_filename, args.citation_keys, args.pattern_match_in_bibliography, args.bibliography)
+    count_citations(args.tex_filename, args.citation_keys, args.pattern_match_in_bibliography, args.bibliography, args.ignore_via_tc_ignore)
 # %%

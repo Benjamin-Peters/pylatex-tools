@@ -1,14 +1,13 @@
 # %%
 import os
 import sys
-import json
 import argparse
 
 from pybtex.database import BibliographyData
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-from pylatextools.texhelpers import strip_comments_in_tex, get_citations_in_tex, read_bib_file, remove_fields_from_bibliography
+from pylatex_tools.texhelpers import strip_comments_in_tex, get_citations_in_tex, read_bib_file, remove_fields_from_bibliography
 
 def load_file(filename: str):
     """ reads a text file and returns a list of the lines in the file
@@ -50,7 +49,7 @@ def create_new_bib_str(cite_keys: list, bib_dict: BibliographyData):
             print('could not find key "%s"' % ck)
     return bib_str
 
-def create_new_bibliography(bib_filename: str, tex_filename: str, 
+def create_new_bibliography(tex_filename: str, bib_filename: str, 
                             output_file: str, remove_fields = ['file', 'abstract', 'note']):
     """ creates a new bibliography (bibtex) which contains only those bib entries that have been cited in the tex file
 
@@ -101,7 +100,7 @@ if __name__ == "__main__":
         
     print('input tex document: %s' % tex_filename)
     print('input bibtex database: %s' % bib_filename)
-    create_new_bibliography(bib_filename, tex_filename, output_file, remove_fields)
+    create_new_bibliography(tex_filename,bib_filename, output_file, remove_fields)
 
 
 

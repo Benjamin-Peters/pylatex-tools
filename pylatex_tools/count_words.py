@@ -6,8 +6,8 @@ import argparse
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-from pylatextools.detex import detex
-from pylatextools.texhelpers import strip_comments_in_tex, load_file_as_list, strip_tc_ignore
+from pylatex_tools.detex import detex
+from pylatex_tools.texhelpers import strip_comments_in_tex, load_file_as_list, strip_tc_ignore
 
 sectioning_commands = ['part', 'chapter', 'section', 'subsection', 'subsubsection', 'paragraph', 'subparagraph']
 sectioning_commands_dict = {x: i for i,x in enumerate(sectioning_commands)}
@@ -27,7 +27,7 @@ def has_struct_el(text: str):
             return h, p    
     return None, None
     
-def count_words(lines: list):
+def count_words_in_list(lines: list):
     """counts word in a tex doc - structure by the sectioning commands
 
     Args:
@@ -102,11 +102,29 @@ def write_to_csv(filename: str, counts: list, heading_level: list, heading_name:
             line = sep * sectioning_commands_dict[h] + heading_name[i].replace(sep, '') + sep * (6-sectioning_commands_dict[h]) + sep * (sectioning_commands_dict[h]) + '%d' % counts[i]
             f.write(line)
             f.write('\n')
-            
-if __name__ == '__main__':
+
+def count_words(tex_filename, ignore_via_tc_ignore = False, write_csv_output = False):
     """creates a word count for each document level and subpart for a tex document
        removes tex commands, image captions, header, citations, etc. - only counts the text
     """
+    lines = load_file_as_list(tex_filename)
+    if ignore_via_tc_ignore:
+        lines = strip_tc_ignore(lines)
+    lines = strip_comments_in_tex(lines)
+
+    print(('\n\nword count for file %s' % tex_filename).upper())
+
+    heading_name, heading_level, counts, counts_cum = count_words_in_list(lines)
+
+    if write_csv_output:
+        output_file = tex_filename.split('.')[0]+'-wordcount.csv'
+        write_to_csv(output_file, counts_cum, heading_level, heading_name)
+
+        output_file = tex_filename.split('.')[0]+'-wordcount-till-next-header.csv'
+        write_to_csv(output_file, counts, heading_level, heading_name)
+
+if __name__ == '__main__':
+
 
     parser = argparse.ArgumentParser(description= "creates a word count for each document level and subpart for a tex document\nremoves tex commands, image captions, header, citations, etc. - only counts the text",
                 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -115,21 +133,4 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--write_csv_output', type=bool, default=False, help='whether to write the word count to csv file. Default True.')
     args = parser.parse_args()
 
-    filename = args.tex_filename
-
-    lines = load_file_as_list(filename)
-    if args.ignore_via_tc_ignore:
-        lines = strip_tc_ignore(lines)
-    lines = strip_comments_in_tex(lines)
-
-    print(('\n\nword count for file %s' % args.tex_filename).upper())
-
-    heading_name, heading_level, counts, counts_cum = count_words(lines)
-
-    if args.write_csv_output:
-        output_file = filename.split('.')[0]+'-wordcount.csv'
-        write_to_csv(output_file, counts_cum, heading_level, heading_name)
-
-        output_file = filename.split('.')[0]+'-wordcount-till-next-header.csv'
-        write_to_csv(output_file, counts, heading_level, heading_name)
-# %%
+    count_words(args.tex_filename, ignore_via_tc_ignore=args.ignore_via_tc_ignore, write_csv_output=args.write_csv_output)

@@ -1,7 +1,5 @@
 # %%
-import os
 import re
-import json
 
 from pybtex.database import parse_file
 from pybtex.database import BibliographyData
@@ -114,5 +112,3 @@ def remove_fields_from_bibliography(bib_dict: BibliographyData, remove_fields: l
             if rm in bib_dict.entries[key].fields:
                 del bib_dict.entries[key].fields[rm]
     return bib_dict
-
-# %%
