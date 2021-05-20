@@ -4,48 +4,49 @@ This library contains a few useful Python tools to work with latex (overleaf).
 
 ## Table of contents
 
-[create_new_bibliography](#create_new_bibliography)
+[Run from console](#run_from_console)
+ - [create_new_bibliography](#create_new_bibliography)
+ - [count_words](#count_words)
+ - [count_citations](#count_citations)
+ - [detex](#detex)
 
-[count_words](#count_words)
+[Python](#python)
 
-[count_citations](#count_citations)
+## <a name="run_from_console"></a> Run from console
 
-[detex](#detex)
-
-[get_citations_in_tex](#get_citations_in_tex)
-
-[strip_comments_in_tex](#strip_comments_in_tex)
-
-
-## functions
-
-### <a name="create_new_bibliography"></a> create_new_bibliography
+### <a name="create_new_bibliography"></a> `create_new_bibliography`
 
 Creates a new bibliography specific to your tex document. Extracts all citation keys that have been used in a tex document. Then, writes a new bibliography that only contains the cited entries.
 
 Example usage:
+
+```bash
+python pylatex-tools.py create_new_bibliography example\main.tex --bibliography example\references.bib --out_filename out.bib
 ```
-python .\pylatextools\create_new_bibliography.py .\example\main.tex .\example\references.bib
+
+Specify `remove_fields` flag to specify which fields should not be included in the new bibliography.
+```bash
+python pylatex-tools.py create_new_bibliography example\main.tex --bibliography example\references.bib --out_filename out.bib --remove_fields file abstract note
+```
+
+The flag `--remove_fields most` removes fields 'file', 'abstract', 'day', 'month', 'keywords', 'urldate', 'language', 'iss', 'note', 'isbn'
+```bash
+python pylatex-tools.py create_new_bibliography example\main.tex --bibliography example\references.bib --out_filename out.bib --remove_fields most
 ```
 
 Writes new file "out.bib" that only contains the cited references.
 
 
-To remove unncessary fields (that often mess up the bibliography):
-```
-python .\pylatextools\create_new_bibliography.py .\example\main.tex .\example\references.bib --remove_fields file abstract day month keywords urldate language iss note isbn
-```
-
-### <a name="count_words"></a> count_words
+### <a name="count_words"></a> `count_words`
 
 Creates a word count overview for a (single) tex document for each section, subsection, etc.
 
 Example usage:
-```
+```bash
 python .\pylatextools\count_words.py .\example\main.tex
 ```
 
-Returns count to console and writes csv files (optionally).
+Returns count to console.
 ```
 WORD COUNT FOR FILE MAIN.TEX
 
@@ -68,13 +69,50 @@ WORD COUNT FOR FILE MAIN.TEX
 1007 in total words when summed across the section count
 ```
 
-### <a name="count_citations"></a> count_citations
+When specifying the `--ignore_via_tc_ignore` flag, all text between the line `%TC:ignore` and a subsequent line `%TC:endignore` is ignored.
+
+```bash
+python .\pylatextools\count_words.py .\example\main.tex --ignore_via_tc_ignore
+```
+Returns (The "First subsubsection" is enclosed by `%TC:ignore` and `%TC:endignore` in the example.tex).
+
+```
+COUNTING WORDS IN EXAMPLE\MAIN.TEX
+
+
+WORD COUNT FOR FILE EXAMPLE\MAIN.TEX
+
+
+  **word count from heading to next heading (e.g., from section heading to next heading, which could be subsection)**
+
+    535            Introduction
+      169            First subsection
+    237            Finally
+
+
+  **word count for each subpart (e.g., all words in a section)**
+
+    704            Introduction
+      169            First subsection
+    237            Finally
+
+
+941 in total words when summed across the section count
+```
+
+ Writes to two csv files.
+ ```bash
+python .\pylatextools\count_words.py .\example\main.tex --write_csv_output
+```
+ 
+
+### <a name="count_citations"></a> `count_citations`
 
 Counts the number of references in a document, how often they are cited, and allows to filter for specific authors/keywords.
 
 Example usage:
-```
-python .\pylatextools\count_citations.py .\example\main.tex
+```bash
+python pylatex-tools.py count_citations example\main.tex
 ```
 
 Returns:
@@ -97,41 +135,69 @@ A total of 3 citations found, 2 unique.
 --------------------------------------------------
 ```
 
-We can specify the bibliography to make it prettier and search for specific authors:
+We can search for a specific `--citation_key`
+
+```bash
+python pylatex-tools.py count_citations example\main.tex --citation_keys einstein_1935_can
 ```
-python .\pylatextools\count_citations.py .\example\main.tex -b .\example\references.bib -p albert
+
+We can specify the `--bibliography` to make it prettier and search for specific authors via `--pattern_match_in_bibliography`:
+```bash
+python pylatex-tools.py count_citations example\main.tex --pattern_match_in_bibliography proteins --bibliography example\references.bib
 ```
+
 Returns:
 ```
+COUNTING CITATIONS IN EXAMPLE\MAIN.TEX
+reading the bib file
+
 --------------------------------------------------
 
 citation_key: # occurences -- reference
 
-einstein_1935_can: 1 -- Einstein, Albert Podolsky, Boris Rosen, Nathan (1935) Can quantum-mechanical description of physical reality be considered complete?
+laemmli_1970_cleavage: 2 -- Laemmli, Ulrich K (1970) Cleavage of structural proteins during the assembly of the head of bacteriophage T4
 
-A total of 1 citations found, 1 unique.
+A total of 2 citations found, 1 unique.
 
 --------------------------------------------------
 
 # occurences:# references
-1:1
+2:1
 
 --------------------------------------------------
 ```
 
-### <a name="detex"></a> detex
+### <a name="detex"></a> `detex`
 
 Creates a text-only version of a tex document (uses a lot of code from [here](http://www.gilles-bertrand.com/2012/11/a-simple-detex-function-in-python.html))
 
 Example usage:
+```bash
+python pylatex-tools.py detex example\main.tex
 ```
-python .\pylatextools\detex.py .\example\main.tex
+
+Write to `--out_filename`
+```bash
+python pylatex-tools.py detex example\main.tex --out_filename detexed.txt
 ```
 
-Prints text stripped of all tex commands and writes to file (optionally).
 
-### <a name="get_citations_in_tex"></a> get_citations_in_tex
-Returns all citation keys used in the tex document
+## <a name="python"></a> Python
 
-### <a name="strip_comments_in_tex"></a> strip_comments_in_tex
-Removes all comments from the tex document
+```python
+import pylatex_tools as pl
+
+# create new bibliography
+pl.create_new_bibliography('example\main.tex', 'example\references.bib')
+
+# count words
+pl.count_words('example\main.tex')
+
+# count citations
+pl.count_citations('example\main.tex')
+
+# detex
+tex_string = pl.get_tex_string_from_file('example\main.tex')
+pl.detex(tex_string)
+```
+
