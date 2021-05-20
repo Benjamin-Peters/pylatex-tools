@@ -1,12 +1,12 @@
 # pylatex-tools
 
-This library contains a few useful Python tools to work with latex (overleaf).
+This library contains a few useful Python tools to work with latex (overleaf). It requires that everything is in a single tex file.
 
 ## Table of contents
 
 [Run from console](#run_from_console)
- - [create_new_bibliography](#create_new_bibliography)
  - [count_words](#count_words)
+ - [create_new_bibliography](#create_new_bibliography)
  - [count_citations](#count_citations)
  - [detex](#detex)
 
@@ -14,36 +14,13 @@ This library contains a few useful Python tools to work with latex (overleaf).
 
 ## <a name="run_from_console"></a> Run from console
 
-### <a name="create_new_bibliography"></a> `create_new_bibliography`
-
-Creates a new bibliography specific to your tex document. Extracts all citation keys that have been used in a tex document. Then, writes a new bibliography that only contains the cited entries.
-
-Example usage:
-
-```bash
-python pylatex-tools.py create_new_bibliography example\main.tex --bibliography example\references.bib --out_filename out.bib
-```
-
-Specify `remove_fields` flag to specify which fields should not be included in the new bibliography.
-```bash
-python pylatex-tools.py create_new_bibliography example\main.tex --bibliography example\references.bib --out_filename out.bib --remove_fields file abstract note
-```
-
-The flag `--remove_fields most` removes fields 'file', 'abstract', 'day', 'month', 'keywords', 'urldate', 'language', 'iss', 'note', 'isbn'
-```bash
-python pylatex-tools.py create_new_bibliography example\main.tex --bibliography example\references.bib --out_filename out.bib --remove_fields most
-```
-
-Writes new file "out.bib" that only contains the cited references.
-
-
 ### <a name="count_words"></a> `count_words`
 
 Creates a word count overview for a (single) tex document for each section, subsection, etc.
 
 Example usage:
 ```bash
-python .\pylatextools\count_words.py .\example\main.tex
+python pylatex-tools.py count_words example\main.tex
 ```
 
 Returns count to console.
@@ -72,7 +49,7 @@ WORD COUNT FOR FILE MAIN.TEX
 When specifying the `--ignore_via_tc_ignore` flag, all text between the line `%TC:ignore` and a subsequent line `%TC:endignore` is ignored.
 
 ```bash
-python .\pylatextools\count_words.py .\example\main.tex --ignore_via_tc_ignore
+python pylatex-tools.py count_words example\main.tex --ignore_via_tc_ignore
 ```
 Returns (The "First subsubsection" is enclosed by `%TC:ignore` and `%TC:endignore` in the example.tex).
 
@@ -102,9 +79,31 @@ WORD COUNT FOR FILE EXAMPLE\MAIN.TEX
 
  Writes to two csv files.
  ```bash
-python .\pylatextools\count_words.py .\example\main.tex --write_csv_output
+python pylatex-tools.py count_words example\main.tex --write_csv_output
 ```
- 
+
+### <a name="create_new_bibliography"></a> `create_new_bibliography`
+
+Creates a new bibliography specific to your tex document. Extracts all citation keys that have been used in a tex document. Then, writes a new bibliography that only contains the cited entries.
+
+Example usage:
+
+```bash
+python pylatex-tools.py create_new_bibliography example\main.tex --bibliography example\references.bib --out_filename out.bib
+```
+
+Specify `remove_fields` flag to specify which fields should not be included in the new bibliography.
+```bash
+python pylatex-tools.py create_new_bibliography example\main.tex --bibliography example\references.bib --out_filename out.bib --remove_fields file abstract note
+```
+
+The flag `--remove_fields most` removes fields 'file', 'abstract', 'day', 'month', 'keywords', 'urldate', 'language', 'iss', 'note', 'isbn'
+```bash
+python pylatex-tools.py create_new_bibliography example\main.tex --bibliography example\references.bib --out_filename out.bib --remove_fields most
+```
+
+Writes new file "out.bib" that only contains the cited references.
+
 
 ### <a name="count_citations"></a> `count_citations`
 
@@ -187,11 +186,11 @@ python pylatex-tools.py detex example\main.tex --out_filename detexed.txt
 ```python
 import pylatex_tools as pl
 
-# create new bibliography
-pl.create_new_bibliography('example\main.tex', 'example\references.bib')
-
 # count words
 pl.count_words('example\main.tex')
+
+# create new bibliography
+pl.create_new_bibliography('example\main.tex', 'example\references.bib')
 
 # count citations
 pl.count_citations('example\main.tex')
