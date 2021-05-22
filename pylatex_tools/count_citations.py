@@ -3,16 +3,17 @@ import os
 import sys
 import argparse
 import re
+from typing import Optional, Union
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from pylatex_tools.texhelpers import strip_comments_in_tex, get_citations_in_tex, load_file_as_list, strip_tc_ignore, read_bib_file
 
-def count_citations(filename, 
-            citation_keys=None, 
-            pattern_match_in_bibliography = None, 
-            bibliography = None, 
-            ignore_via_tc_ignore = False):
+def count_citations(filename: str, 
+            citation_keys: Optional[str] = None, 
+            pattern_match_in_bibliography: Optional[str] = None, 
+            bibliography: Optional[str] = None, 
+            ignore_via_tc_ignore: bool = False) -> None:
     # load lines from tex file
     lines = load_file_as_list(filename)
     if ignore_via_tc_ignore:
@@ -47,7 +48,7 @@ def count_citations(filename,
                 authors = [x.__str__() for x in bib_dict.entries[c].persons['author']]
                 for a in authors:
                     for p in pattern_match_in_bibliography:
-                        authors_match = authors_match or re.search(p, a, re.IGNORECASE)
+                        authors_match = authors_match or re.search(p, a, re.IGNORECASE) # type: ignore
             except:
                 pass
 
@@ -65,7 +66,7 @@ def count_citations(filename,
         print('\n' + '-' * 50)
         print('\ncitation_key: # occurences -- reference\n')        
         for o in order:
-            authors = ''
+            authors: Union[str, list[str]] = ''
             try:
                 authors = [x.__str__() for x in bib_dict.entries[unique_cites[o]].persons['author']]
             except:
@@ -82,7 +83,7 @@ def count_citations(filename,
     print(f"\nA total of {len(cites)} citations found, {len(unique_cites)} unique.")
     print('\n' + '-' * 50)
     # tabulate the number of occurences
-    tab = {}
+    tab: dict[int, int] = {}
     for c in counts:
         if c in tab.keys():
             tab[c] += 1

@@ -4,15 +4,17 @@ import sys
 import re
 import argparse
 
+from typing import Optional
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from pylatex_tools.detex import detex
 from pylatex_tools.texhelpers import strip_comments_in_tex, load_file_as_list, strip_tc_ignore
 
 sectioning_commands = ['part', 'chapter', 'section', 'subsection', 'subsubsection', 'paragraph', 'subparagraph']
-sectioning_commands_dict = {x: i for i,x in enumerate(sectioning_commands)}
+sectioning_commands_dict = {x: i for i, x in enumerate(sectioning_commands)}
 
-def has_struct_el(text: str):    
+def has_struct_el(text: str) -> tuple[Optional[str], Optional[int]]:    
     """checks for the presence of a sectioning command in a string
 
     Args:
@@ -27,7 +29,7 @@ def has_struct_el(text: str):
             return h, p    
     return None, None
     
-def count_words_in_list(lines: list):
+def count_words_in_list(lines: list[str]) -> tuple[list[str], list[str], list[int], list[int]]:
     """counts word in a tex doc - structure by the sectioning commands
 
     Args:
@@ -72,7 +74,7 @@ def count_words_in_list(lines: list):
     
     # now add counts to higher level headings
     counts_cum = counts.copy()
-    for i,l1 in enumerate(level):
+    for i, l1 in enumerate(level):
         for j, l2 in enumerate(level[i+1:]):
             if l2 <= l1:
                 break
@@ -94,8 +96,8 @@ def count_words_in_list(lines: list):
     return heading_name, heading_level, counts, counts_cum
 
 
-def write_to_csv(filename: str, counts: list, heading_level: list, heading_name: list , sep: str = ','):
-    with open(filename, 'w', encoding="utf-8") as f:
+def write_to_csv(filename: str, counts: list[int], heading_level: list[str], heading_name: list[str], sep: str = ',') -> None:
+    with open(filename, 'w', encoding = "utf-8") as f:
         f.write(sep.join(sectioning_commands) + sep + sep.join(sectioning_commands))
         f.write('\n')
         for i, h in enumerate(heading_level):
@@ -103,7 +105,7 @@ def write_to_csv(filename: str, counts: list, heading_level: list, heading_name:
             f.write(line)
             f.write('\n')
 
-def count_words(tex_filename, ignore_via_tc_ignore = False, write_csv_output = False):
+def count_words(tex_filename: str, ignore_via_tc_ignore: bool = False, write_csv_output: bool = False) -> None:
     """creates a word count for each document level and subpart for a tex document
        removes tex commands, image captions, header, citations, etc. - only counts the text
     """
@@ -126,11 +128,11 @@ def count_words(tex_filename, ignore_via_tc_ignore = False, write_csv_output = F
 if __name__ == '__main__':
 
 
-    parser = argparse.ArgumentParser(description= "creates a word count for each document level and subpart for a tex document\nremoves tex commands, image captions, header, citations, etc. - only counts the text",
-                formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('tex_filename', type=str, help='path to the latex file')   
-    parser.add_argument('-i', '--ignore_via_tc_ignore', type=bool, default=False, help='wethere to ignore lines between "%TC:ignore" and "%TC:endignore".')    
-    parser.add_argument('-w', '--write_csv_output', type=bool, default=False, help='whether to write the word count to csv file. Default True.')
+    parser = argparse.ArgumentParser(description = "creates a word count for each document level and subpart for a tex document\nremoves tex commands, image captions, header, citations, etc. - only counts the text",
+                formatter_class = argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('tex_filename', type = str, help = 'path to the latex file')   
+    parser.add_argument('-i', '--ignore_via_tc_ignore', type = bool, default = False, help='wethere to ignore lines between "%TC:ignore" and "%TC:endignore".')    
+    parser.add_argument('-w', '--write_csv_output', type = bool, default = False, help = 'whether to write the word count to csv file. Default True.')
     args = parser.parse_args()
 
     count_words(args.tex_filename, ignore_via_tc_ignore=args.ignore_via_tc_ignore, write_csv_output=args.write_csv_output)

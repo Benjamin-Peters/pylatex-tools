@@ -1,8 +1,8 @@
 import argparse
-
+from typing import Union, Optional
 import pylatex_tools as pl
 
-def str2bool(v):
+def str2bool(v: Union[str, bool]) -> bool:
     if isinstance(v, bool):
         return v
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
