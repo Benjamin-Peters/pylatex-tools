@@ -1,6 +1,6 @@
 # pylatex-tools
 
-This library contains a few useful Python tools to work with latex (overleaf). It requires that everything is in a single tex file.
+This library contains a few useful Python tools to work with latex (overleaf). It requires that the text is in a single tex file (it cannot intepret tex commands like input).
 
 ## Table of contents
 
