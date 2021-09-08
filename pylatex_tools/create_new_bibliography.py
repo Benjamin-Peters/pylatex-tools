@@ -93,8 +93,9 @@ if __name__ == "__main__":
     output_file = args.out_filename
     remove_fields = args.remove_fields
     
-    if len(remove_fields) == 1 and remove_fields[0] == 'most':
-        remove_fields = ['file', 'abstract', 'day', 'month', 'keywords', 'urldate', 'language', 'issn', 'note', 'isbn']
+    if len(remove_fields) >= 1 and 'most' in remove_fields:
+        remove_fields = [f for f in remove_fields if f != 'most']
+        remove_fields += ['file', 'abstract', 'day', 'month', 'keywords', 'urldate', 'language', 'issn', 'note', 'isbn']
 
     print(('creating new bibfile').upper())
     if len(remove_fields)>0:
