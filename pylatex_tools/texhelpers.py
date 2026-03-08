@@ -12,6 +12,22 @@ def load_file_as_list(filename: str) -> list[str]:
     textfile.close()
     return lines
 
+def strip_comment_environment(tex_lines: list[str]) -> list[str]:
+    """removes lines between \\begin{comment} and \\end{comment} (inclusive)"""
+    new_lines: list[str] = []
+    in_comment_block = False
+    for line in tex_lines:
+        if not in_comment_block and '\\begin{comment}' in line:
+            in_comment_block = True
+            continue
+        if in_comment_block:
+            if '\\end{comment}' in line:
+                in_comment_block = False
+            continue
+        new_lines.append(line)
+    return new_lines
+
+
 def strip_comments_in_tex(tex_lines: list[str]) -> list[str]:
     """strips comments (%) from list of tex lines
 
@@ -21,6 +37,7 @@ def strip_comments_in_tex(tex_lines: list[str]) -> list[str]:
     Returns:
         list: same list where everything after a % is removed
     """
+    tex_lines = strip_comment_environment(tex_lines)
     for i, line in enumerate(tex_lines):
         p = line.find('%')
         if p >= 0:
