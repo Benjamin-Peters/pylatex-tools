@@ -105,7 +105,7 @@ def write_to_csv(filename: str, counts: list[int], heading_level: list[str], hea
             f.write(line)
             f.write('\n')
 
-def count_words(tex_filename: str, ignore_via_tc_ignore: bool = False, write_csv_output: bool = False) -> None:
+def count_words(tex_filename: str, ignore_via_tc_ignore: bool = False, write_csv_output: bool = False, write_tex_output: bool = False) -> None:
     """creates a word count for each document level and subpart for a tex document
        removes tex commands, image captions, header, citations, etc. - only counts the text
     """
@@ -124,6 +124,17 @@ def count_words(tex_filename: str, ignore_via_tc_ignore: bool = False, write_csv
 
         output_file = tex_filename.split('.')[0]+'-wordcount-till-next-header.csv'
         write_to_csv(output_file, counts, heading_level, heading_name)
+        
+    if write_tex_output:
+        output_file = tex_filename.split('.')[0]+'-wordcount.tex'
+        with open(output_file, 'w', encoding = "utf-8") as f:
+            f.write('\\begin{tabular}{l|l}\n')
+            f.write('Heading & Word Count \\\\\n')
+            f.write('\\hline\n')
+            for i, h in enumerate(heading_level):
+                line = (' ' * sectioning_commands_dict[h] + heading_name[i].replace('&', '') + ' & %d' % counts[i] + ' \\\\\n')
+                f.write(line)
+            f.write('\\end{tabular}\n')
 
 if __name__ == '__main__':
 
@@ -131,8 +142,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = "creates a word count for each document level and subpart for a tex document\nremoves tex commands, image captions, header, citations, etc. - only counts the text",
                 formatter_class = argparse.RawDescriptionHelpFormatter)
     parser.add_argument('tex_filename', type = str, help = 'path to the latex file')   
-    parser.add_argument('-i', '--ignore_via_tc_ignore', type = bool, default = False, help='wethere to ignore lines between "%TC:ignore" and "%TC:endignore".')    
+    parser.add_argument('-i', '--ignore_via_tc_ignore', type = bool, default = False, help='whether to ignore lines between "%TC:ignore" and "%TC:endignore".')                            
     parser.add_argument('-w', '--write_csv_output', type = bool, default = False, help = 'whether to write the word count to csv file. Default True.')
+    parser.add_argument('-t', '--tex_output', type = bool, default = False, help = 'whether to write the word count to a tex file (table). Default False.')
     args = parser.parse_args()
 
-    count_words(args.tex_filename, ignore_via_tc_ignore=args.ignore_via_tc_ignore, write_csv_output=args.write_csv_output)
+    count_words(args.tex_filename, ignore_via_tc_ignore=args.ignore_via_tc_ignore, write_csv_output=args.write_csv_output, write_tex_output=args.tex_output)
